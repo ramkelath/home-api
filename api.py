@@ -11,11 +11,14 @@ def home():
 
 @app.route('/api', methods=['GET','POST'])
 def api():
-    endpoint = "http://127.0.0.1:5001/canaryapi"
-    response = requests.post(endpoint, auth = ('apikey', 'apisecret'), params = {'address': request.args.get('address'), 'zipcode':request.args.get('zipcode')})
+    # The following two values should ideally be read from an encrypted file in the filesystem
+    username = 'apikey'
+    password = 'apisecret'
+    endpoint = "http://127.0.0.1:5001/canaryapi"  # In the real world this would go to https://api.housecanary.com/v2/property/details
+    response = requests.post(endpoint, auth = (username, password), params = {'address': request.args.get('address'), 'zipcode':request.args.get('zipcode')})
     if (response.status_code == 200):
         homedata = json.loads(response.text)
-        if (homedata["sewer"] == 'septic'):
+        if (homedata["property/details"]["result"]["property"]["sewer"] == 'septic'):
           return jsonify({"septic":"true"})
         else:
           return jsonify({"septic":"false"})
